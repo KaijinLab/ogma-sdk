@@ -1,0 +1,25 @@
+{
+  "name": "@kaijinlab/ogma-sdk",
+  "version": "1.0.0",
+  "description": "TypeScript types for the Ogma plugin SDK.",
+  "keywords": ["ogma", "plugin", "sdk", "security", "proxy"],
+  "homepage": "https://github.com/KaijinLab/ogma-sdk",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KaijinLab/ogma-sdk.git"
+  },
+  "license": "AGPL-3.0-only",
+  "author": {
+    "name": "Kaijin Lab",
+    "url": "https://github.com/KaijinLab"
+  },
+  "main": "index.js",
+  "types": "index.d.ts",
+  "files": [
+    "index.js",
+    "index.d.ts"
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
+}

@@ -1,0 +1,43 @@
+name: Bug report
+description: Report an incorrect or missing type in @ogma/sdk
+title: "[Bug]: "
+labels:
+  - bug
+body:
+  - type: input
+    id: version
+    attributes:
+      label: "@ogma/sdk version"
+      placeholder: "1.0.0"
+    validations:
+      required: true
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: What is wrong?
+      description: Describe the incorrect or missing type.
+      placeholder: "The return type of sdk.findings.create() is wrong -- it returns X but is typed as Y."
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Minimal example
+      render: typescript
+      placeholder: |
+        import type { OgmaBackendSdk } from '@ogma/sdk';
+        async function init(sdk: OgmaBackendSdk) {
+          // TypeScript error here, but the runtime works fine
+        }
+    validations:
+      required: false
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected type
+      placeholder: "sdk.findings.create() should return Promise<Finding>"
+    validations:
+      required: true

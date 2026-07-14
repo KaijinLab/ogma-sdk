@@ -1,0 +1,22 @@
+name: Type request
+description: Request types for a new or undocumented SDK feature
+title: "[Types]: "
+labels:
+  - enhancement
+body:
+  - type: textarea
+    id: feature
+    attributes:
+      label: What SDK feature needs types?
+      description: Name the sdk.* method or namespace that is missing or incomplete.
+      placeholder: "sdk.workflows.list() is not typed"
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Where did you find this feature?
+      description: Ogma version, plugin SDK docs, or runtime observation.
+    validations:
+      required: false
