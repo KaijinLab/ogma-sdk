@@ -16,6 +16,18 @@
 // HTTP objects
 // ---------------------------------------------------------------------------
 
+/** Represents an HTTP body. Returned by getBody() methods. */
+export declare class Body {
+  /** The body length in bytes. */
+  readonly length: number;
+  /** Returns the full body text. */
+  toText(): string;
+  /** Parses and returns the body as JSON. Throws if not valid JSON. */
+  toJson(): unknown;
+  /** Returns raw bytes as a Uint8Array. */
+  toRaw(): Uint8Array;
+}
+
 export interface HttpRequest {
   getId(): string | null;
   getHost(): string;
@@ -26,7 +38,7 @@ export interface HttpRequest {
   getUrl(): string;
   getHeaders(): Record<string, string>;
   getHeader(name: string): string | undefined;
-  getBody(): string | null;
+  getBody(): Body | undefined;
 }
 
 export interface HttpResponse {
@@ -35,9 +47,9 @@ export interface HttpResponse {
   getCode(): number;
   getHeaders(): Record<string, string>;
   getHeader(name: string): string | undefined;
-  getBody(): string | null;
+  getBody(): Body | undefined;
   getRoundtripTime(): number;
-  getCreatedAt(): number;
+  getCreatedAt(): Date | null;
 }
 
 /** A mutable request spec used to construct outbound requests via sdk.requests.send(). */
@@ -77,6 +89,8 @@ export interface SdkEvents {
   onCurrentRuleChange(callback: () => void): void;
   /** Called for each upstream request, allowing modification before sending. */
   onUpstream(callback: (req: RequestSpec) => RequestSpec | void): void;
+  /** Called when a new finding is created. */
+  onFindingCreated(callback: (finding: Finding) => void): void;
 }
 
 // ---------------------------------------------------------------------------
@@ -224,6 +238,12 @@ export interface SdkReplay {
 export interface SdkMeta {
   /** Returns the plugin's writable data directory path on disk. */
   path(): string;
+  /** Returns the plugin's unique instance ID. */
+  id(): string;
+  /** Returns the plugin's package ID (e.g. "com.example.my-plugin"). */
+  packageId(): string;
+  /** Returns the plugin's version string. */
+  version(): string;
 }
 
 // ---------------------------------------------------------------------------
@@ -257,7 +277,106 @@ export interface SettingsPageSpec {
 
 export interface SdkSettings {
   register(spec: SettingsPageSpec): void;
-  get(key: string): Promise<unknown>;
+  /** Get the current saved value for a registered settings field. Returns null if not set. */
+  get(key: string): Promise<string | null>;
+}
+
+// ---------------------------------------------------------------------------
+// sdk.theme
+// ---------------------------------------------------------------------------
+
+export interface SdkTheme {
+  /** Returns the current app theme. */
+  get(): 'dark' | 'light';
+  /** Register a callback invoked when the app theme changes. */
+  onChange(callback: (theme: 'dark' | 'light') => void): void;
+}
+
+// ---------------------------------------------------------------------------
+// sdk.workflows
+// ---------------------------------------------------------------------------
+
+export interface Workflow {
+  id: string;
+  name: string;
+  kind: string;
+  enabled: boolean;
+  created_at: number;
+  updated_at: number;
+}
+
+export interface ListWorkflowsOptions {
+  limit?: number;
+  offset?: number;
+}
+
+export interface SdkWorkflows {
+  /** List workflows. */
+  list(opts?: ListWorkflowsOptions): Promise<{ workflows: Workflow[]; total: number }>;
+  /** Get a single workflow by ID. */
+  get(id: string): Promise<Workflow | undefined>;
+}
+
+// ---------------------------------------------------------------------------
+// sdk.matchReplace
+// ---------------------------------------------------------------------------
+
+export type MatchReplacePhase = 'request' | 'response';
+export type MatchReplaceSection = 'RequestLine' | 'RequestHeader' | 'RequestBody' | 'ResponseLine' | 'ResponseHeader' | 'ResponseBody';
+export type MatchReplaceOperation = string;
+
+export interface MatchReplaceRule {
+  id: string;
+  name: string;
+  phase: MatchReplacePhase;
+  match_host?: string;
+  match_path?: string;
+  match_method?: string;
+  match_status?: string;
+  enabled: boolean;
+  created_at: number;
+}
+
+export interface CreateMatchReplaceRuleBody {
+  name: string;
+  phase: MatchReplacePhase;
+  match_host?: string;
+  match_path?: string;
+  match_method?: string;
+  match_status?: string;
+  enabled?: boolean;
+}
+
+export interface SdkMatchReplace {
+  /** Get all match-and-replace rules. */
+  getRules(): Promise<MatchReplaceRule[]>;
+  /** Get a single rule by ID. */
+  getRule(id: string): Promise<MatchReplaceRule | undefined>;
+  /** Create a new rule. */
+  createRule(rule: CreateMatchReplaceRuleBody): Promise<MatchReplaceRule>;
+  /** Update an existing rule. */
+  updateRule(id: string, patch: Partial<CreateMatchReplaceRuleBody>): Promise<MatchReplaceRule>;
+  /** Delete a rule. */
+  deleteRule(id: string): Promise<void>;
+  /** Enable or disable a rule. */
+  toggleRule(id: string, enabled: boolean): Promise<MatchReplaceRule>;
+  /** Register a callback fired when any rule changes. */
+  onCurrentRuleChange(callback: () => void): void;
+}
+
+// ---------------------------------------------------------------------------
+// sdk.fs  (scoped to the plugin's data directory)
+// ---------------------------------------------------------------------------
+
+export interface SdkFs {
+  /** Read a file from the plugin data directory. Returns the file content as a string. */
+  read(path: string): Promise<string>;
+  /** Write a string to a file in the plugin data directory. Creates the file if it doesn't exist. */
+  write(path: string, data: string): Promise<void>;
+  /** List files and directories in the given path within the plugin data directory. */
+  list(dir?: string): Promise<string[]>;
+  /** Create a directory (and parents) in the plugin data directory. */
+  mkdir(path: string): Promise<void>;
 }
 
 // ---------------------------------------------------------------------------
@@ -281,4 +400,7 @@ export interface OgmaBackendSdk {
   replay: SdkReplay;
   meta: SdkMeta;
   settings: SdkSettings;
+  workflows: SdkWorkflows;
+  matchReplace: SdkMatchReplace;
+  fs: SdkFs;
 }
