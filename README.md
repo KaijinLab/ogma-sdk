@@ -1,6 +1,6 @@
 <p align="center">
-  <a href="https://github.com/KaijinLab/ogma">
-    <img src="https://raw.githubusercontent.com/KaijinLab/ogma/master/.github/banner.png" alt="Ogma" width="100%">
+  <a href="https://github.com/KaijinLab/ogma-sdk">
+    <img src=".github/banner.png" alt="Ogma SDK" width="100%">
   </a>
 </p>
 
