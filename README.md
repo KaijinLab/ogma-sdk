@@ -25,7 +25,7 @@
 
 ---
 
-This package provides TypeScript type definitions for the [Ogma](https://github.com/KaijinLab/ogma) plugin SDK. It has no runtime code -- types only.
+This package provides TypeScript type definitions for the [Ogma](https://ogma.kaijinlab.com) plugin SDK. It has no runtime code -- types only.
 
 ## Install
 
